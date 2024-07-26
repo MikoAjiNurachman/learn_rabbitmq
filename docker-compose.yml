@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learn_rabbitmq
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - APP_PORT=8080
+    deploy:
+      resources:
+        limits:
+          memory: 256m
